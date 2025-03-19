@@ -1,0 +1,105 @@
+\input texinfo
+@setfilename s21_snake.info
+@documentencoding UTF-8
+
+@settitle s21_snake
+
+@titlepage
+@title s21_snake
+@subtitle s21 variant of snake in C++ language
+@author gwynesst
+
+@vskip 0pt plus 1filll
+@end titlepage
+
+@headings off
+
+@contents
+
+@ifnottex
+@node Top
+@top s21_snake
+@end ifnottex
+
+@menu
+* gui page::           
+* logic page::     
+@end menu
+
+@node gui page
+@chapter gui
+
+@code{class MainWindowS21Snake} - Класс главного меню 
+
+@code{MainWindowS21Snake(GameInfo_t *ptr_obj, Snake *ptr_snake, QWidget *parent = nullptr)} - Конструктор класса главного меню, в нем создаются : кнопки главного меню, виджет игрового окна, layout, задаётся размер окна и установка его в центр экрана
+
+@code{void set_logo(QVBoxLayout *layout)} - Установка лого школы в левом верхнем углу
+
+@code{void start_game_window()} - Закрытие главного окна и запуск игрового окна в центре экрана, включение таймера для обновления интерфейса 
+
+@code{void set_qlabel(QVBoxLayout *layout)} - Отрисовка названия игры в зависимости от компиляции
+
+@code{void set_palette()} - Установка палитры для главного окна
+
+@code{void set_buttons(QVBoxLayout *layout)} - Установка для кнопок (иконки, слоты, шрифт, добавление в layout)
+
+@code{void output_settings()} - Вывод message box с отображением настроек ввода
+
+@code{class game_window} - Класс игрового окна
+
+@code{game_window(Snake *snake_t, GameInfo_t *ptr_obj, QWidget *parent = nullptr)} - Конструктор игрового окна,  создание таймера, подключение таймера к отрисовке, установка иконки и палитры
+
+@code{void output_game_over()} - Вывод при конце игры, задаём две кнопки, в зависимости от нажатия , либо запускаем reset игры и включаем таймер, либо выходим из приложения
+
+@code{void start_timer()} - Запуск таймера
+
+@code{void paint_added_info(QPainter *painter)} - Вывод дополнительной информации, справа от игрового поля
+
+@code{void output_pause()} - Вывод паузы
+
+
+@code{void set_palette()} - Установка палитры
+
+@code{void output_win()} - Вывод при выйгрыше
+
+@code{void keyPressEvent(QKeyEvent *event) override} - перегружанная функция нажатий клавиш
+
+@code{void paintEvent(QPaintEvent *event) override} - перегруженная фукнция отрисовки
+
+@code{void update_screen()} - Слот, который срабатывает после истечения таймера
+
+@node logic page
+@chapter logic page
+
+@code{typedef struct Snake} - Структура игры змейка
+
+@code{Snake()} - Конструктор структуры, хранит направление, тело в виде вектора, яблоко, и поле в которое будем вносить расположение тела и яблока
+
+@code{~Snake()} - Деструктор, освобождаем память, которую брали и записываем в файл high score
+
+@code{void check_snake(const std::pair<int, int> &end)} - Проверяем на столкновение тела с яблоком, или границами, в зависимости от этого изменяем данные
+
+@code{void to_zero_field()} - Очистка поля
+
+@code{void generate_apple()} - Создание яблока в рандомном местоположении, проверяем чтобы яблоко было не в теле змейки
+
+@code{bool in_body_apple()} - Проверка яблока на то, что оно в теле, возвращает true or false
+
+@code{bool in_body_head()} - Проверка в теле голова или нет, возвращает true or false
+
+@code{Snake *get_snake()} - Создание статической структуры, возвращает указатель на эту структуру
+
+@code{void userInput(UserAction_t action, bool hold)} - Обработка ввода пользователя
+
+@code{GameInfo_t updateCurrentState()} - изменения состояния поля по истечению таймера, возвращает структуру с данными
+
+@code{GameInfo_t get_info_extern()} - получение поля интерфейсом, после изменения пользователем
+
+@code{void Snake::reset_game()} - Рестарт игры
+
+@code{int processing_left()} - Обработка нажатие клавиши влево, возвращает направление
+
+@code{int processing_right()} - Обработка нажатие клавиши вправо, возвращает направление
+
+@code{void change_level()} - Смена уровня если он меньше 10
+@bye
