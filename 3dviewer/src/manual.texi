@@ -1,0 +1,269 @@
+\input texinfo
+@setfilename s21_3DViewer.info
+@documentencoding UTF-8
+
+@settitle s21_snake
+
+@titlepage
+@title s21_3DViewer
+@subtitle s21 variant of 3DViewer in C++ language
+@author sausagec, gwynesst
+
+@vskip 0pt plus 1filll
+@end titlepage
+
+@headings off
+
+@contents
+
+@ifnottex
+@node Top
+@top s21_3DViewer
+@end ifnottex
+
+@menu
+* Point3D class::
+* SceneObject class::           
+* Edge class::
+* BoundingBox class::
+* Figure class::
+* Camera class::
+* Scene class::
+* FacadeOperationResult class::
+* FacadeTransformedVertex class::
+* Facade class::
+* BaseFileReader class::
+* FileReader class::
+* TransformMatrix class::
+* TransformMatrixBuilder class::
+* Conver class::
+* MainWindow class::
+* Viewport class::
+* Control class::     
+@end menu
+
+@node Point3D class
+@chapter Point3D class
+@code{class Point3D} - Class contains coordinats of  x,y,z,w
+
+@code{Point3D(float x, float y, float z, float w = 1)} - Constructor with params
+
+@code{float GetX() const; float GetY() const; float GetZ() const; float GetW() const} - Getters
+
+@code{void SetX(float x);void SetY(float y);void SetZ(float z);void SetW(float w);} - Setters
+
+
+@node SceneObject class
+@chapter SceneObject class
+@code{class SceneObject} - Abstract class
+
+@code{virtual void Transform(const TransformMatrix &var)} - virtual metod for signature of transformation different classes
+
+@node Edge class
+@chapter Edge class
+@code{class Edge} - Class contains referenceses of vertixes, whis is one Edge 
+
+@code{Edge(Vertex &begin, Vertex &end); Edge(const Edge &var) } - Constructor
+
+@code{Edge &operator=(const Edge &var)  bool operator<(const Edge &other) const; bool operator==(const Edge &other) const} - Overload operators
+
+@code{  Vertex &GetBegin() const; Vertex &GetEnd() const} - Getters
+
+@node BoundingBox class
+@chapter BoundingBox class
+
+@code{class BoundingBox} - Calculates dimensions of figure, keeps 2 objects of class Point3D min and max
+
+@code{BoundingBox(const std::vector<Vertex> &vertices)} - Constructor with params
+
+@code{const Point3D GetMin() const; const Point3D GetMax() const; const Point3D GetCenter() const;} - Getters
+
+@node Figure class
+@chapter Figure class
+
+@code{class Figure} - Class contains vectors of vertixes, indexes, Edges
+
+@code{Figure(std::vector<Vertex> vertices, std::vector<Edge> edges);Figure(const Figure &var);} - Constructor
+
+@code{std::vector<Vertex> GetVertices() const; std::vector<Point3D> GetPoints(); std::vector<Edge> GetEdges() const; const std::vector<unsigned int> &GetIndices() const; Vertex &GetVertexRef(int index);   BoundingBox GetBoundingBox() const;} - Getters
+
+@code{void addVertices(const Vertex &vertices);void addEdges(const Edge &edges);void addIndeces(const unsigned int &index);} -Metods of adding vertexes, edges and indexes
+
+@code{void Transform(const TransformMatrix &var) override} -Metod of transformation vertixes are located in fugure
+
+@node Camera class
+@chapter Camera class
+
+@code{class Camera} - Class of camera contains coordinates of position, value of near and far Z for view matrix, scale factor, and edges of view
+
+@code{Camera(float x, float y, float z)} - Constructor with params
+
+@code{float GetScaleNormalisedFactor() const; float GetViewAngle() const; Point3D GetPosition() const; float GetZNear() const; float GetZFar() const;} - Getters
+
+@code{void SetPosition(const Point3D &var); void SetBounds(float zNear, float zFar); void SetScaleFactor(float factor);} - Setters
+
+@node Scene class
+@chapter Scene class
+
+@code{class Scene} - Class contains vector of figures, camera and coordinate of center
+
+@code{Scene(const std::vector<Figure> &figures, const Camera &camera);Scene(const Scene &var);} - Constructors
+
+@code{std::vector<Figure> GetFigures() const;Figure GetFigure(int index) const;  Point3D GetCenter() const;Camera GetCamera() const;} - Getters
+
+@code{  void setFigures(const Figure &var);void setCenter(Point3D center);void setCamera(const Camera &var);} - Setters
+
+@code{void createCam(const float &maxX, const float &maxY, const float &maxZ,Scene &result); void zoomCamera(float size);} - Metods of camera
+
+@code{void TransformFigures(const TransformMatrix &var);void TransformCamera(const TransformMatrix &var);} - affine transformations of camera and figures
+
+@node FacadeOperationResult class
+@chapter FacadeOperationResult class
+
+@code{class FacadeOperationResult} - Class contains messages about result of metods in facade and bool value of success
+
+@code{FacadeOperationResult(); FacadeOperationResult(std::string errorMessage)} - Constructors
+
+@code{  std::string GetErrorMessage() const; bool isSuccess() const;} - Getters
+
+@code{  void SetErrorMessage(const std::string &msg);void SetResult(const bool &var);} - Setters
+
+@node FacadeTransformedVertex class
+@chapter FacadeTransfromedVertex class
+
+@code{class FacadeTransformedVertex} -Class for giving info about vertixes in the front. Contains vectors of vertixes and indexes
+
+@code{FacadeTransformedVertex(std::vector<Point3D> var,const std::vector<unsigned int> &indices);FacadeTransformedVertex(const FacadeTransformedVertex &var);} - Constructors
+
+@code{ std::vector<Point3D> &GetVertices();const std::vector<Point3D> &GetVertices() const;const std::vector<unsigned int> &GetIndices() const;} - Getters
+
+@code{FacadeTransformedVertex &operator=(const FacadeTransformedVertex &var);} - Overload operator equal
+
+@node Facade class
+@chapter Facade class
+
+@code{class Facade} - Class facade with metods of load, paint and affine transformations of scene, contains scene and parser
+
+@code{Scene GetScene() const;} - Getter
+
+@code{FacadeTransformedVertex DrawScene(int view_width, int view_height,bool perspective = true);FacadeOperationResult LoadScene(const std::string &path);} - Metods of load and paint
+
+@code{FacadeOperationResult MoveScene(float x, float y, float z);FacadeOperationResult RotateScene(float x_angle_deg, float y_angle_deg,float z_angle_deg);FacadeOperationResult ScaleScene(float size);} - Metods of affine transformations
+
+@node BaseFileReader class
+@chapter BaseFileReader class
+
+@code{class BaseFileReader} - Abstract class for parser of file
+
+@code{virtual Scene ReadScene(const char *path)} - Virtual metod of reading file
+
+@node FileReader class
+@chapter FileReader class
+
+@code{Scene ReadScene(const char *path) override;} - Overload metod of reading file, returns scene
+
+@node TransformMatrix class
+@chapter TransformMatrix class
+
+@code{class TransformMatrix} - Class contains matrix 4x4 in the form of two-dimension massive
+
+@code{float &operator()(int row, int col)} - Overload for access two indexes
+
+@code{Point3D TransformPoint(const Point3D &var) const;} - Multiplication matrix on point
+
+@code{TransformMatrix operator*(const TransformMatrix &var) const; Point3D operator*(const Point3D &var) const;} - Overload metod of transformation
+
+@node TransformMatrixBuilder class
+@chapter TransformMatrixBuilder class
+
+@code{class TransformMatrixBuilder} - Class of creation matrix for using in affine transformation
+
+@code{static TransformMatrix CreateIdentityMatrix();}
+
+@code{static TransformMatrix CreateRotationMatrix(float x_angle_rad,float y_angle_rad,float z_angle_rad);}
+
+@code{static TransformMatrix CreateMoveMatrix(float x, float y, float z);}
+
+@code{static TransformMatrix CreateScaleMatrix(float x, float y, float z);}
+
+@code{static TransformMatrix CreatePerspectiveMatrix(float view_angle_rad,float aspect, float zNear,float zFar);}
+
+@code{static TransformMatrix CreateOrthoMatrix(float width, float height,float zNear, float zFar);}
+  
+@code{static TransformMatrix CreateViewMatrix(const Point3D &eye,const Point3D &center,const S21Vector &up = S21Vector(0, 1,0));} - Статические методы создания матриц
+
+@node Convert class
+@chapter Convert class
+
+@code{class Convert} - Класс для конвертации градусов в радианы и обратно Class for convert degrees in radians and back
+
+@code{  static float toDeg(float radians);static float toRad(float degrees);} - Metods of convertation
+
+@node MainWindow class
+@chapter MainWindow class
+
+@code{class MainWindow} -  Class of the main window of qt. Contatins all of ui, buttons,sliders, openglWidgdet
+
+@code{void toZeroSliders();}
+
+@code{void showFileDialog();} -  Output of window of choose
+
+@code{void showChangeColorPoints(); void showColorDialog();void showChangeBackground();} - Output of window of choose of color vertexes, edges, background
+
+@node Viewport class
+@chapter Viewport class
+
+@code{class Viewport} - Class is inherited from openglWidget, paint polygons
+
+@code{void initializeGL() override;void resizeGL(int w, int h) override;void paintGL() override;} - overload metods of openglWidget
+
+@code{void initShaders();void initShadersPoint();} - Initialization of shaders
+
+@code{void Viewport::destroyBuffers()}
+
+@code{void updateBufferVertixes();void updateBuffers();}
+
+@code{bool toBool(const std::string &str);}
+
+@code{void setRadioButtons();}
+
+@code{void setSliders();}
+
+@code{void loadObj(const std::string &path);}
+
+@code{void doScale(int size);void doMove(float x, float y, float z);}
+
+@code{void doSetPerspectiveMode();void doSetOrthoMode();}
+
+@code{void doSolid();void doDotted();}
+
+@code{void doChangeLineWidth(int size);}
+
+@code{void changeColorPoints(const QColor &var);void changeColorLines(const QColor &var);   void changeColorBackground(const QColor &var);}
+
+@code{void setQuads();void setCircles();void setAbsent();}
+
+@code{void saveBmp();void saveJpeg();}
+
+@code{void recordGif();}
+
+@node Control class
+@chapter Control class
+
+@code{class Control} - Класс связующий бэк и фронт. Запускает методы афиинных преобразований, загрузку файла и отдаёт данные во фронт. Class is connecting back and front. Launches metods of affine transformations
+
+@code{Control(Facade* ptr)} - Constructor
+
+@code{std::vector<Point3D> getPoints();std::vector<unsigned int> getIndices();int getEdgesCount();int getVerticesCount();} - Getters
+
+@code{void load(const std::string& path);}
+
+@code{void scale(int size);}
+
+@code{void move(float x, float y, float z);}
+
+@code{void rotate(float horizontal, float vertical);} 
+
+@code{void mode(float width, float height, bool isPerspective);}
+
+@bye
