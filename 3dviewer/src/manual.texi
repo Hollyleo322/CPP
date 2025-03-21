@@ -1,0 +1,248 @@
+\input texinfo
+@setfilename s21_3DViewer.info
+@documentencoding UTF-8
+
+@settitle s21_snake
+
+@titlepage
+@title s21_3DViewer
+@subtitle s21 variant of 3DViewer in C++ language
+@author sausagec, gwynesst
+
+@vskip 0pt plus 1filll
+@end titlepage
+
+@headings off
+
+@contents
+
+@ifnottex
+@node Top
+@top s21_3DViewer
+@end ifnottex
+
+@menu
+* Point3D class::
+* SceneObject class::           
+* Edge class::
+* BoundingBox class::
+* Figure class::
+* Camera class::
+* Scene class::
+* FacadeOperationResult class::
+* FacadeTransformedVertex class::
+* Facade class::
+* BaseFileReader class::
+* FileReader class::
+* TransformMatrix class::
+* TransformMatrixBuilder class::
+* Conver class::
+* MainWindow class::
+* Viewport class::     
+@end menu
+
+@node Point3D class
+@chapter Point3D class
+@code{class Point3D} - Класс содержащий координаты точки x,y,z,w
+
+@code{Point3D(float x, float y, float z, float w = 1)} - Конструктор с параметрами
+
+@code{float GetX() const; float GetY() const; float GetZ() const; float GetW() const} - Геттеры
+
+@code{void SetX(float x);void SetY(float y);void SetZ(float z);void SetW(float w);} - Сеттеры
+
+
+@node SceneObject class
+@chapter SceneObject class
+@code{class SceneObject} - Абстрактный класс
+
+@code{virtual void Transform(const TransformMatrix &var)} - виртуальный метод, для сигнатур трансформации разных классов
+
+@node Edge class
+@chapter Edge class
+@code{class Edge} - Класс хранящий ссылки на вершины, которые составляют одно ребро
+
+@code{Edge(Vertex &begin, Vertex &end); Edge(const Edge &var) } - Конструкторы
+
+@code{  Edge &operator=(const Edge &var)  bool operator<(const Edge &other) const; bool operator==(const Edge &other) const} - Перегрузка операторов
+
+@code{  Vertex &GetBegin() const; Vertex &GetEnd() const} - Геттеры
+
+@node BoundingBox class
+@chapter BoundingBox class
+
+@code{class BoundingBox} - Вычисляет габариты фигуры, хранит 2 экземпляра класса Point3D min и max
+
+@code{BoundingBox(const std::vector<Vertex> &vertices)} - Конструктор с параметром
+
+@code{const Point3D GetMin() const; const Point3D GetMax() const; const Point3D GetCenter() const;} - Геттеры  min, max и center между ними
+
+@node Figure class
+@chapter Figure class
+
+@code{class Figure} - Класс содержащий вектора вершин, индексов и рёбер
+
+@code{Figure(std::vector<Vertex> vertices, std::vector<Edge> edges);Figure(const Figure &var);} - Конструкторы
+
+@code{std::vector<Vertex> GetVertices() const; std::vector<Point3D> GetPoints(); std::vector<Edge> GetEdges() const; const std::vector<unsigned int> &GetIndices() const; Vertex &GetVertexRef(int index);   BoundingBox GetBoundingBox() const;} - Геттеры
+
+@code{void addVertices(const Vertex &vertices);void addEdges(const Edge &edges);void addIndeces(const unsigned int &index);} - Методы добавления вершин, рёбер и индексов
+
+@code{void Transform(const TransformMatrix &var) override} - метод трансформации вершин находящихся в фигуре
+
+@node Camera class
+@chapter Camera class
+
+@code{class Camera} - Класс камеры, содержит координаты позиции, значения близкого и дальнего Z для видовой матрицы, scalefactor, и углы просмотра
+
+@code{Camera(float x, float y, float z)} - Конструктор с параметрами
+
+@code{float GetScaleNormalisedFactor() const; float GetViewAngle() const; Point3D GetPosition() const; float GetZNear() const; float GetZFar() const;} - Геттеры
+
+@code{void SetPosition(const Point3D &var); void SetBounds(float zNear, float zFar); void SetScaleFactor(float factor);} - Сеттеры
+
+@node Scene class
+@chapter Scene class
+
+@code{class Scene} - Класс содержащий вектор фигур, камеру и координату центра
+
+@code{Scene(const std::vector<Figure> &figures, const Camera &camera);Scene(const Scene &var);} - Конструктор с параметрами и конструктор копирования
+
+@code{std::vector<Figure> GetFigures() const;Figure GetFigure(int index) const;  Point3D GetCenter() const;Camera GetCamera() const;} - Геттеры
+
+@code{  void setFigures(const Figure &var);void setCenter(Point3D center);void setCamera(const Camera &var);} - Сеттеры
+
+@code{void createCam(const float &maxX, const float &maxY, const float &maxZ,Scene &result); void zoomCamera(float size);} - Методы камеры
+
+@code{void TransformFigures(const TransformMatrix &var);void TransformCamera(const TransformMatrix &var);} - Афинные преобразования фигуры и камеры
+
+@node FacadeOperationResult class
+@chapter FacadeOperationResult class
+
+@code{class FacadeOperationResult} - Класс содержащий сообщения о результатах выполнения методов в фасаде и булевое значение успеха
+
+@code{FacadeOperationResult(); FacadeOperationResult(std::string errorMessage)} - Конструктор с параметром и дефолтный конструктор
+
+@code{  std::string GetErrorMessage() const; bool isSuccess() const;} - Геттеры
+
+@code{  void SetErrorMessage(const std::string &msg);void SetResult(const bool &var);} - Сеттеры
+
+@node FacadeTransformedVertex class
+@chapter FacadeTransfromedVertex class
+
+@code{class FacadeTransformedVertex} - Класс для подачи информации о вершинах в фронт. Содержит вектора вершин и индексов.
+
+@code{FacadeTransformedVertex(std::vector<Point3D> var,const std::vector<unsigned int> &indices);FacadeTransformedVertex(const FacadeTransformedVertex &var);} - Конструктор с параметрами, конструктор копирования
+
+@code{ std::vector<Point3D> &GetVertices();const std::vector<Point3D> &GetVertices() const;const std::vector<unsigned int> &GetIndices() const;} - Геттеры
+
+@code{FacadeTransformedVertex &operator=(const FacadeTransformedVertex &var);} - Перегрузка
+
+@node Facade class
+@chapter Facade class
+
+@code{class Facade} - Класс фасад, с методами загрузки, рисования и афинных преобразований сцены, содержащий сцену и парсер
+
+@code{Scene GetScene() const;} - Геттер
+
+@code{FacadeTransformedVertex DrawScene(int view_width, int view_height,bool perspective = true);FacadeOperationResult LoadScene(const std::string &path);} - Методы загрузки и рисования (отдаёт объект класса FacadeTransformedVertex для рисования на фронте)
+
+@code{FacadeOperationResult MoveScene(float x, float y, float z);FacadeOperationResult RotateScene(float x_angle_deg, float y_angle_deg,float z_angle_deg);FacadeOperationResult ScaleScene(float size);} - Методы афинных преобразований
+
+@node BaseFileReader class
+@chapter BaseFileReader class
+
+@code{class BaseFileReader} - Абстрактный класс для парсеров файла
+
+@code{virtual Scene ReadScene(const char *path)} - виртуальный метод считывания данных из файла
+
+@node FileReader class
+@chapter FileReader class
+
+@code{Scene ReadScene(const char *path) override;} - Перегруженный метод считывания данных из файла, возвращают сцену
+
+@node TransformMatrix class
+@chapter TransformMatrix class
+
+@code{class TransformMatrix} - Класс сожержащий матрицу 4х4 в виде двумерного массива
+
+@code{float &operator()(int row, int col)} - перегрузка для доступа по двум индексам
+
+@code{Point3D TransformPoint(const Point3D &var) const;} - Перемножение матрицы на точку
+
+@code{TransformMatrix operator*(const TransformMatrix &var) const; Point3D operator*(const Point3D &var) const;} - перегрузка метода трансформ
+
+@node TransformMatrixBuilder class
+@chapter TransformMatrixBuilder class
+
+@code{class TransformMatrixBuilder} - Класс создания матриц для использования в аффинных преобразованиях
+
+@code{static TransformMatrix CreateIdentityMatrix();}
+
+@code{static TransformMatrix CreateRotationMatrix(float x_angle_rad,float y_angle_rad,float z_angle_rad);}
+
+@code{static TransformMatrix CreateMoveMatrix(float x, float y, float z);}
+
+@code{static TransformMatrix CreateScaleMatrix(float x, float y, float z);}
+
+@code{static TransformMatrix CreatePerspectiveMatrix(float view_angle_rad,float aspect, float zNear,float zFar);}
+
+@code{static TransformMatrix CreateOrthoMatrix(float width, float height,float zNear, float zFar);}
+  
+@code{static TransformMatrix CreateViewMatrix(const Point3D &eye,const Point3D &center,const S21Vector &up = S21Vector(0, 1,0));} - Статические методы создания матриц
+
+@node Convert class
+@chapter Convert class
+
+@code{class Convert} - Класс для конвертации градусов в радианы и обратно
+
+@code{  static float toDeg(float radians);static float toRad(float degrees);} - Методы конвертации
+
+@node MainWindow class
+@chapter MainWindow class
+
+@code{class MainWindow} - Класс главного qt окна. Содержит весь ui, кнопки, слайдеры, glWidget
+
+@code{void toZeroSliders();} - Метод обнуления слайдеров при загрузке другого файла
+
+@code{void showFileDialog();} - Вывод окна выбора файлов
+
+@code{void showChangeColorPoints(); void showColorDialog();void showChangeBackground();} - Вывод окна выбора цвета вершин, ребёр, фона
+
+@node Viewport class
+@chapter Viewport class
+
+@code{class Viewport} - Класс наследуемый от openglWidget, отрисовывает по координатам полигоны
+
+@code{void initializeGL() override;void resizeGL(int w, int h) override;void paintGL() override;} - перегрузка методов openglWidget
+
+@code{void initShaders();void initShadersPoint();} - инициализация шейдеров
+
+@code{void Viewport::destroyBuffers()} - уничтожение буферов
+
+@code{  void updateBufferVertixes();void updateBuffers();} - обновление буферов вершин и индексов
+
+@code{bool toBool(const std::string &str);} - метод получения булевого значения от строки
+
+@code{void setRadioButtons();} - Сеттер кнопок
+
+@code{void setSliders();} - Сеттер слайдеров.
+
+@code{void loadObj(const std::string &path);} - Слот загрузки объекта
+
+@code{void doScale(int size);void doMove(float x, float y, float z);} - Слоты аффинных преобразований
+
+@code{void doSetPerspectiveMode();void doSetOrthoMode();} - Сеттер видовой матрицы
+
+@code{void doSolid();void doDotted();} - Слоты для установки сплошной или пунктирной линии
+
+@code{void doChangeLineWidth(int size);} - Слот изменения ширины линии
+
+@code{void changeColorPoints(const QColor &var);void changeColorLines(const QColor &var);   void changeColorBackground(const QColor &var);} - Слоты изменения цвета вершин, ребёр и фона
+
+@code{void setQuads();void setCircles();void setAbsent();} - Слоты отображения вершин в виде квадратов или кругов, либо отсутствия отображения
+
+@code{void saveBmp();void saveJpeg();} - Слоты скриншотов
+
+@code{void recordGif();} - Слот создания GIF
+@bye
